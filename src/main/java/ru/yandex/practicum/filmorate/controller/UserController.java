@@ -50,7 +50,7 @@ public class UserController {
             }
             if (!users.containsKey(user.getId())) {
                 log.error("Пользователя с указанным id нет в базе");
-                throw new frValidationException("Пользователя с указанным id нет в базе");
+                throw new FrValidationException("Пользователя с указанным id нет в базе");
             }
             users.put(user.getId(), user);
 

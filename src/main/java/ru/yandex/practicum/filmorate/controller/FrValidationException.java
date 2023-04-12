@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
-public class frValidationException extends RuntimeException {
+public class FrValidationException extends RuntimeException {
 
-    public frValidationException(String message) {
+    public FrValidationException(String message) {
         super(message);
     }
 

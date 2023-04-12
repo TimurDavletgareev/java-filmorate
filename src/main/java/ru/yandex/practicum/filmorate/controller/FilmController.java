@@ -34,7 +34,7 @@ public class FilmController {
 
             log.error("Указана дата до 28.12.1895");
 
-            throw new frValidationException("Указана дата до 28.12.1895");
+            throw new FrValidationException("Указана дата до 28.12.1895");
         }
         film.setId(idCounter);
         films.put(film.getId(), film);
@@ -48,11 +48,11 @@ public class FilmController {
 
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.error("Указана дата до 28.12.1895");
-            throw new frValidationException("Указана дата до 28.12.1895");
+            throw new FrValidationException("Указана дата до 28.12.1895");
         }
         if (!films.containsKey(film.getId())) {
             log.error("Фильма с указанным id нет в базе");
-            throw new frValidationException("Фильма с указанным id нет в базе");
+            throw new FrValidationException("Фильма с указанным id нет в базе");
         }
         films.put(film.getId(), film);
 
