@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class InMemoryUserStorage implements UserStorage{
+public class InMemoryUserStorage implements UserStorage {
 
     private int idCounter = 1; // Переменная для создания уникальных id
     private final Map<Integer, User> users = new HashMap<>();
