@@ -14,4 +14,6 @@ public interface UserStorage {
 
     boolean containsKey(Integer id);
 
+    User getUser(Integer id);
+
 }

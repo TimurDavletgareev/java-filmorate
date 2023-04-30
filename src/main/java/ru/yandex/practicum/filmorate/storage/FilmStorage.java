@@ -14,4 +14,6 @@ public interface FilmStorage {
 
     boolean containsKey(Integer id);
 
+    Film getFilm(Integer id);
+
 }

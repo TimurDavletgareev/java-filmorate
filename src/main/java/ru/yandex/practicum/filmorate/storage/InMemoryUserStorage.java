@@ -22,6 +22,9 @@ public class InMemoryUserStorage implements UserStorage{
     public User addUser(User user) {
 
         user.setId(idCounter);
+        if (user.getName().equals("")) {
+            user.setName(user.getLogin());
+        }
         users.put(user.getId(), user);
         idCounter++;
 
@@ -39,5 +42,10 @@ public class InMemoryUserStorage implements UserStorage{
     @Override
     public boolean containsKey(Integer id) {
         return users.containsKey(id);
+    }
+
+    @Override
+    public User getUser(Integer id) {
+        return users.get(id);
     }
 }

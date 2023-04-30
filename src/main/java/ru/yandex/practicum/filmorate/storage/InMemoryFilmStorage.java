@@ -22,7 +22,7 @@ public class InMemoryFilmStorage implements FilmStorage{
         film.setId(idCounter);
         films.put(film.getId(), film);
         idCounter++;
-        return null;
+        return film;
     }
 
     @Override
@@ -36,5 +36,10 @@ public class InMemoryFilmStorage implements FilmStorage{
     public boolean containsKey(Integer id) {
 
         return films.containsKey(id);
+    }
+
+    @Override
+    public Film getFilm(Integer id) {
+        return films.get(id);
     }
 }
