@@ -41,7 +41,9 @@ public class UserService {
         return userStorage.containsKey(id);
     }
 
-    public User getUserById(Integer id) { return userStorage.getUser(id); }
+    public User getUserById(Integer id) {
+        return userStorage.getUser(id);
+    }
 
     /*
         Методы добавления и удаления друзей
@@ -61,7 +63,7 @@ public class UserService {
     /*
         Метод получения списка друзей дользователя
      */
-    public Collection<Integer> getFriendsList(Integer id){
+    public Collection<Integer> getFriendsList(Integer id) {
         return userStorage.getUser(id).getFriends();
     }
 
