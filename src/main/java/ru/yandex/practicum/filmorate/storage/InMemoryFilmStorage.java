@@ -6,7 +6,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.*;
 
 @Component
-public class InMemoryFilmStorage implements FilmStorage{
+public class InMemoryFilmStorage implements FilmStorage {
 
     private int idCounter = 1; // Переменная для создания уникальных id
     private final Map<Integer, Film> films = new HashMap<>(); // карта для хранения фильмов по ключу id
