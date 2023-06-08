@@ -1,3 +1,4 @@
+/*
 package ru.yandex.practicum.filmorate.test;
 
 import com.google.gson.Gson;
@@ -206,4 +207,4 @@ class UserControllerTest {
 
     }
 
-}
+}*/

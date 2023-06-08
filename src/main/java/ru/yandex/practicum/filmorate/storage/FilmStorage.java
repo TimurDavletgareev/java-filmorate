@@ -12,8 +12,14 @@ public interface FilmStorage {
 
     Film updateFilm(Film film);
 
-    boolean containsKey(Integer id);
+    boolean containsKey(Integer filmId);
 
-    Film getFilm(Integer id);
+    Film getFilm(Integer filmId);
+
+    void addLike(Integer filmId, Integer userId);
+
+    void removeLike(Integer filmId, Integer userId);
+
+    Integer getRating(Integer filmId);
 
 }

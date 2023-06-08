@@ -56,7 +56,7 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
 
-        isValidId(film.getId());
+        isValidId(film.getFilmId());
 
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new FilmValidationException("Указана дата до 28.12.1895");
@@ -79,10 +79,8 @@ public class FilmService {
         isValidId(filmId);
         userService.isValidId(userId);
 
-        Film film = filmStorage.getFilm(filmId);
-
-        filmStorage.getFilm(filmId).addUserToLikedList(userId);
-        userService.addLikeFromUser(userId, film);
+        filmStorage.addLike(filmId, userId);
+        userService.addLikeFromUser(userId, filmId);
     }
 
     public void deleteLike(Integer filmId, Integer userId) {
@@ -90,10 +88,8 @@ public class FilmService {
         isValidId(filmId);
         userService.isValidId(userId);
 
-        Film film = filmStorage.getFilm(filmId);
-
-        filmStorage.getFilm(filmId).removeUserFromLikedList(userId);
-        userService.removeLikeFromUser(userId, film);
+        filmStorage.removeLike(filmId, userId);
+        userService.removeLikeFromUser(userId, filmId);
     }
 
     /*
@@ -102,7 +98,8 @@ public class FilmService {
     public Collection<Film> getPopular(int size) {
 
         return getAllFilms().stream()
-                .sorted((f0, f1) -> -1 * (f0.getRating() - f1.getRating())) // -1 т.к. сортируем по убыванию
+                .sorted((f0, f1) -> -1 * (filmStorage.getRating(f0.getFilmId())
+                        - filmStorage.getRating(f1.getFilmId()))) // -1 т.к. сортируем по убыванию
                 .limit(size)
                 .collect(Collectors.toList());
     }

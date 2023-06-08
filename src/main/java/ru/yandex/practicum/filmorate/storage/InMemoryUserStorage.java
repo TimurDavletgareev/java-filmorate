@@ -1,17 +1,18 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
 
     private int idCounter = 1; // Переменная для создания уникальных id
     private final Map<Integer, User> users = new HashMap<>();
+    private Map<Integer, List<Integer>> friends = new HashMap<>();
+    private Map<Integer, List<Integer>> filmsLiked = new HashMap<>();
 
     @Override
     public Collection<User> getAllUsers() {
@@ -40,12 +41,39 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public boolean containsKey(Integer id) {
-        return users.containsKey(id);
+    public boolean containsKey(Integer userId) {
+        return users.containsKey(userId);
     }
 
     @Override
-    public User getUser(Integer id) {
-        return users.get(id);
+    public User getUser(Integer userId) {
+        return users.get(userId);
+    }
+
+    @Override
+    public void addFriend(Integer userId, Integer friendId) {
+        friends.get(userId).add(friendId);
+    }
+
+    @Override
+    public void removeFriend(Integer userId, Integer friendId) {
+        friends.get(userId).remove(friendId);
+    }
+
+    @Override
+    public Collection<Integer> getFriends(Integer userId) {
+        return friends.get(userId);
+    }
+
+    @Override
+    public void addLikeToFilm(Integer userId, Integer filmId) {
+
+        filmsLiked.get(userId).add(filmId);
+    }
+
+    @Override
+    public void removeLikeFromFilm(Integer userId, Integer filmId) {
+
+        filmsLiked.get(userId).remove(filmId);
     }
 }
