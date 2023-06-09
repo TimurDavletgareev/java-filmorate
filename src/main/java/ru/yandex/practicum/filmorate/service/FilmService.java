@@ -93,7 +93,7 @@ public class FilmService {
 
     /*
         Метод получения списка самых популярных фильмов
-     */
+    */
     public Collection<Film> getPopular(int size) {
 
         return getAllFilms().stream()
@@ -105,20 +105,22 @@ public class FilmService {
 
 
     /*
-            Методы работы с таблицей genre
-        */
-    public void isValidMpaId(int id) {
+        Методы работы с таблицей genre
+    */
+    public void isValidMpaId(int mpaId) {
 
-        if (!filmStorage.containsMpaId(id)) {
+        if (!filmStorage.containsMpaId(mpaId)) {
 
-            throw new NotFoundException("MPA с указанным id нет в базе");
+            throw new NotFoundException("MPA с указанным mpaId нет в базе");
         }
     }
-    public KVClass getMpaByFilmId(Integer filmId) {
 
-        isValidFilmId(filmId);
-        return filmStorage.getMpaByMpaId(filmId);
+    public KVClass getMpaByMpaId(Integer mpaId) {
+
+        isValidMpaId(mpaId);
+        return filmStorage.getMpaByMpaId(mpaId);
     }
+
     public Collection<KVClass> getAllMpa() {
 
         return filmStorage.getAllMpa();
@@ -134,11 +136,13 @@ public class FilmService {
             throw new NotFoundException("Жанра с указанным id нет в базе");
         }
     }
+
     public String getGenre(Integer genreId) {
 
         isValidGenreId(genreId);
         return filmStorage.getGenre(genreId);
     }
+
     public Collection<KVClass> getAllGenres() {
 
         return filmStorage.getAllGenres();

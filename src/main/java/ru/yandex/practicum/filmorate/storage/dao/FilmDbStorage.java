@@ -11,10 +11,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.*;
 
 @Component
 @Primary
@@ -51,6 +48,13 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
     }
 
+    private Integer mapRowToInteger(ResultSet rs, int rowNum) throws SQLException {
+
+        Integer id = rs.getInt("genre_id");
+
+        return id;
+    }
+
     @Override
     public Film addFilm(Film film) {
 
@@ -58,12 +62,13 @@ public class FilmDbStorage implements FilmStorage {
         String description = film.getDescription();
         LocalDate releaseDate = film.getReleaseDate();
         Integer duration = film.getDuration();
-        Integer ratingId = film.getMpa().getId();
+        Integer ratingId = film.getMpa();
         Integer likes = film.getRate();
+        ArrayList<Integer> genres = film.getGenres();
 
         // добавляем фильм в таблицу films
-        String sqlQuery = "INSERT INTO film(name, description, release_date, duration_min, rating_id, likes) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        String sqlQuery = "INSERT INTO film(name, description, release_date, duration_min, rating_id, likes)" +
+                " VALUES (?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(sqlQuery,
                 name,
@@ -77,23 +82,18 @@ public class FilmDbStorage implements FilmStorage {
         Integer filmId = jdbcTemplate.queryForObject("SELECT film_id FROM film WHERE " +
                         "name = '" + name + "' AND duration_min = '" + duration + "'",
                 Integer.class);
-/*
+
         // добавляем фильм в таблицу film_genre
-        HashSet filmGenres = film.getGenres();
-        for (Object genreIdObj : filmGenres) {
-            Integer genreId = (Integer) genreIdObj;
+        for (Integer genreId : film.getGenres()) {
             jdbcTemplate.update("INSERT INTO film_genre (film_id, genre_id) VALUES (? , ?)", filmId, genreId);
         }
-*/
 
-
-        // достаём созданный фильм из таблицы
+        // достаём созданный фильм из таблицы фиьмов
         sqlQuery = "SELECT * FROM film WHERE " +
                 "name = ? " +
                 "AND description = ? " +
                 "AND release_date = ? " +
                 "AND duration_min = ? ";
-
 
         Film filmToReturn = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm,
                 name,
@@ -101,19 +101,24 @@ public class FilmDbStorage implements FilmStorage {
                 releaseDate,
                 duration);
 
-        film.setId(filmId);
+        // достаём список жанров фильма из таблицы film_genre
+        sqlQuery = "SELECT genre_id FROM film_genre WHERE film_id = '" + filmId + "'";
+        ArrayList<Integer> genreList = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::mapRowToInteger));
 
-        return film;
+        filmToReturn.setGenres(genreList);
+
+        return filmToReturn;
     }
 
     @Override
     public Film updateFilm(Film film) {
 
+        Integer id = film.getId();
         String name = film.getName();
         String description = film.getDescription();
         LocalDate releaseDate = film.getReleaseDate();
         Integer durationMin = film.getDuration();
-        Integer ratingId = film.getMpa().getId();
+        Integer ratingId = film.getMpa();
         Integer likes = film.getRate();
 
         // обновляем фильм
@@ -133,12 +138,20 @@ public class FilmDbStorage implements FilmStorage {
                 durationMin,
                 ratingId,
                 likes,
-                film.getId());
+                id);
 
         // достаём обновлённый фильм из таблицы
         sqlQuery = "SELECT * FROM film WHERE film_id = ?";
 
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, film.getId());
+        Film updatedFilm = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
+
+        // достаём список жанров фильма из таблицы film_genre
+        sqlQuery = "SELECT genre_id FROM film_genre WHERE film_id = '" + id + "'";
+        ArrayList<Integer> genreList = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::mapRowToInteger));
+
+        updatedFilm.setGenres(genreList);
+
+        return updatedFilm;
     }
 
     @Override
@@ -154,7 +167,9 @@ public class FilmDbStorage implements FilmStorage {
 
         String sqlQuery = "select * from film where film_id = ?";
 
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, filmId);
+        Film filmToReturn = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, filmId);
+
+        return filmToReturn;
 
     }
 

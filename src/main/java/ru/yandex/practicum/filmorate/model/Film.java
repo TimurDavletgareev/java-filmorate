@@ -5,10 +5,7 @@ import org.springframework.data.relational.core.sql.In;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -27,9 +24,9 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private Integer duration;
-    private KVClass mpa = new KVClass();
+    private Integer mpa;
     private Integer rate;
-    private Collection genres;
+    private ArrayList<Integer> genres = new ArrayList<>();
 
     // Конструктор для всего, кроме genres
     public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration,
@@ -40,9 +37,9 @@ public class Film {
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.mpa = addMpa(mpa);
+        this.mpa = mpa;
         this.rate = rate;
-        genres = new HashSet();
+
     }
 
     // Конструктор для всего, кроме genres и rate
@@ -54,9 +51,9 @@ public class Film {
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.mpa = addMpa(mpa);
+        this.mpa = mpa;
         rate = 0;
-        genres = new HashSet();
+
     }
 
     // Конструктор для всего, кроме id, rate и genres
@@ -66,39 +63,39 @@ public class Film {
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.mpa = addMpa(mpa);
+        this.mpa = mpa;
         rate = 0;
-        genres = new HashSet();
+
     }
 
     // конструктор для всего, кроме id
     public Film(String name, String description, LocalDate releaseDate, Integer duration, Integer mpa,
                 Integer rate,
-                Collection<Integer> genres) {
+                ArrayList<LinkedHashMap<String, Integer>> genres) {
 
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.mpa = addMpa(mpa);
+        this.mpa = mpa;
         this.rate = rate;
-        this.genres = genres;
+        this.genres = addGenres(genres);
     }
 
     // конструктор для всего вообще
     public Film(Integer id,
                 String name, String description, LocalDate releaseDate, Integer duration, Integer mpa,
                 Integer rate,
-                Collection<Integer> genres) {
+                ArrayList<LinkedHashMap<String, Integer>> genres) {
 
         this.id = id;
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.mpa = addMpa(mpa);
+        this.mpa = mpa;
         this.rate = rate;
-        this.genres = genres;
+        this.genres = addGenres(genres);
     }
 
     // пустой конструктор
@@ -130,6 +127,22 @@ public class Film {
                 return null;
 
         }
+    }
+
+    /*
+        Метод заполнения Genres
+    */
+    private ArrayList<Integer> addGenres(ArrayList<LinkedHashMap<String, Integer>> inputGenres) {
+
+        ArrayList<Integer> resultList = new ArrayList<>();
+
+        for (int i = 0; i < inputGenres.size(); i++) {
+
+            Integer genreId = inputGenres.get(i).get("id");
+            resultList.add(genreId);
+
+        }
+        return resultList;
     }
 
 }
