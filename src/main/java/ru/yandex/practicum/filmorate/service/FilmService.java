@@ -114,10 +114,10 @@ public class FilmService {
             throw new NotFoundException("MPA с указанным id нет в базе");
         }
     }
-    public String getMpa(Integer mpaId) {
+    public KVClass getMpaByFilmId(Integer filmId) {
 
-        isValidMpaId(mpaId);
-        return filmStorage.getMpa(mpaId);
+        isValidFilmId(filmId);
+        return filmStorage.getMpaByMpaId(filmId);
     }
     public Collection<KVClass> getAllMpa() {
 

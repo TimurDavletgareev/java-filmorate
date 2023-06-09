@@ -26,9 +26,9 @@ public class TableController {
     Эндпоинт получения MPA по id
  */
     @GetMapping("/mpa/{id}")
-    public String getMpa(@PathVariable Integer id) {
+    public KVClass getMpaByFilmId(@PathVariable Integer id) {
 
-        return filmService.getMpa(id);
+        return filmService.getMpaByFilmId(id);
     }
 
     /*

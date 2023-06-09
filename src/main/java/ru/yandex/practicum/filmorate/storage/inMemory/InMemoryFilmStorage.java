@@ -68,7 +68,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public String getMpa(Integer mpaId) {
+    public KVClass getMpaByMpaId(Integer mpaId) {
         return null;
     }
 

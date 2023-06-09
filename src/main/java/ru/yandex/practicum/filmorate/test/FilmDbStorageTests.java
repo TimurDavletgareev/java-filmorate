@@ -16,8 +16,6 @@ import ru.yandex.practicum.filmorate.storage.dao.FilmDbStorage;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -132,6 +130,10 @@ class FilmDbStorageTests {
 
         Film filmToCheck = filmStorage.getFilm(id);
 
+        System.out.println(filmToAdd);
+        System.out.println(updatedFilm);
+        System.out.println(filmToCheck);
+
         assertEquals(filmToCheck, updatedFilm);
     }
 
@@ -150,7 +152,7 @@ class FilmDbStorageTests {
 
         LocalDate releaseDate = LocalDate.parse("1985-03-25", formatter);
         Integer rate = 6;
-        HashSet<Integer> genres = new HashSet<>();
+        ArrayList<Integer> genres = new ArrayList<>();
         Film filmToAdd = new Film("filmWithLikes", "descr", releaseDate, 120, MPAAList.G,
                 rate, genres);
         filmStorage.addFilm(filmToAdd);
@@ -167,9 +169,14 @@ class FilmDbStorageTests {
     @Test
     public void testGetMpa() {
 
+        filmStorage.addFilm(film1);
+
+        Integer id = jdbcTemplate.queryForObject("SELECT film_id FROM film WHERE name = 'title1'",
+                Integer.class);
+
         assertTrue(filmStorage.containsMpaId(1));
         assertFalse(filmStorage.containsMpaId(1000));
-        assertEquals("G", filmStorage.getMpa(1));
+        assertEquals("G", filmStorage.getMpaByMpaId(id).getName());
         ArrayList<KVClass> list = new ArrayList<>(filmStorage.getAllMpa());
         System.out.println(list);
         assertEquals(list.get(0).getId(), 1);

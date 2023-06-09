@@ -11,7 +11,9 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 
 @Component
@@ -34,12 +36,11 @@ public class FilmDbStorage implements FilmStorage {
         String name = rs.getString("name");
         String description = rs.getString("description");
         LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
-        Integer durationMin  = rs.getInt("duration_min");
-        Integer ratingId  = rs.getInt("rating_id");
-        Integer likes  = rs.getInt("likes");
-        HashSet<Integer> genres = new HashSet<>();
+        Integer durationMin = rs.getInt("duration_min");
+        Integer ratingId = rs.getInt("rating_id");
+        Integer likes = rs.getInt("likes");
 
-        return new Film(filmId, name, description, releaseDate, durationMin, ratingId, likes, genres);
+        return new Film(filmId, name, description, releaseDate, durationMin, ratingId, likes);
     }
 
     @Override
@@ -60,7 +61,7 @@ public class FilmDbStorage implements FilmStorage {
         Integer ratingId = film.getMpa().getId();
         Integer likes = film.getRate();
 
-        // добавляем фильм в таблицу
+        // добавляем фильм в таблицу films
         String sqlQuery = "INSERT INTO film(name, description, release_date, duration_min, rating_id, likes) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -72,23 +73,37 @@ public class FilmDbStorage implements FilmStorage {
                 ratingId,
                 likes);
 
-        Integer id = jdbcTemplate.queryForObject("SELECT film_id FROM film WHERE name = '" + name + "'",
+        // Получаем id добавленного фильма в БД
+        Integer filmId = jdbcTemplate.queryForObject("SELECT film_id FROM film WHERE " +
+                        "name = '" + name + "' AND duration_min = '" + duration + "'",
                 Integer.class);
+/*
+        // добавляем фильм в таблицу film_genre
+        HashSet filmGenres = film.getGenres();
+        for (Object genreIdObj : filmGenres) {
+            Integer genreId = (Integer) genreIdObj;
+            jdbcTemplate.update("INSERT INTO film_genre (film_id, genre_id) VALUES (? , ?)", filmId, genreId);
+        }
+*/
+
 
         // достаём созданный фильм из таблицы
         sqlQuery = "SELECT * FROM film WHERE " +
-                "film_id = ? " +
-                "AND name = ? " +
+                "name = ? " +
                 "AND description = ? " +
                 "AND release_date = ? " +
-                "AND duration_min = ?";
+                "AND duration_min = ? ";
 
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm,
-                id,
+
+        Film filmToReturn = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm,
                 name,
                 description,
                 releaseDate,
                 duration);
+
+        film.setId(filmId);
+
+        return film;
     }
 
     @Override
@@ -186,11 +201,12 @@ public class FilmDbStorage implements FilmStorage {
 
         return new KVClass(id, name);
     }
-    @Override
-    public String getMpa(Integer mpaId) {
 
-        return jdbcTemplate.queryForObject("SELECT rating_name FROM rating WHERE rating_id = ?",
-                String.class, mpaId);
+    @Override
+    public KVClass getMpaByMpaId(Integer mpaId) {
+
+        String sqlQuery = "SELECT rating_id, rating_name FROM rating WHERE rating_id = ?";
+        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToMpaKV, mpaId);
     }
 
     @Override

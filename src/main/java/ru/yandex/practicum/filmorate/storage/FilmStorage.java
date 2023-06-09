@@ -4,7 +4,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.KVClass;
 
 import java.util.Collection;
-import java.util.HashMap;
 
 public interface FilmStorage {
 
@@ -25,7 +24,7 @@ public interface FilmStorage {
     Integer getLikes(Integer filmId);
 
     boolean containsMpaId(Integer mpaId);
-    String getMpa(Integer mpaId);
+    KVClass getMpaByMpaId(Integer mpaId);
     Collection<KVClass> getAllMpa();
 
     boolean containsGenreId(Integer genreId);
