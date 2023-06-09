@@ -1,7 +1,9 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.inMemory;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.KVClass;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.*;
 
@@ -20,8 +22,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film addFilm(Film film) {
 
-        film.setFilmId(idCounter);
-        films.put(film.getFilmId(), film);
+        film.setId(idCounter);
+        films.put(film.getId(), film);
         idCounter++;
         return film;
     }
@@ -29,7 +31,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film updateFilm(Film film) {
 
-        films.put(film.getFilmId(), film);
+        films.put(film.getId(), film);
         return film;
     }
 
@@ -45,19 +47,50 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void addLike(Integer filmId, Integer userId) {
+    public void addLike(Integer filmId) {
 
-        likes.get(filmId).add(userId);
+
     }
 
     @Override
-    public void removeLike(Integer filmId, Integer userId) {
-        likes.get(filmId).remove(userId);;
+    public void removeLike(Integer filmId) {
+
     }
 
     @Override
-    public Integer getRating(Integer filmId) {
+    public Integer getLikes(Integer filmId) {
         return likes.get(filmId).size();
     }
+
+    @Override
+    public boolean containsMpaId(Integer mpaId) {
+        return false;
+    }
+
+    @Override
+    public String getMpa(Integer mpaId) {
+        return null;
+    }
+
+    @Override
+    public Collection<KVClass> getAllMpa() {
+        return null;
+    }
+
+    @Override
+    public boolean containsGenreId(Integer genreId) {
+        return false;
+    }
+
+    @Override
+    public String getGenre(Integer genreId) {
+        return null;
+    }
+
+    @Override
+    public Collection<KVClass> getAllGenres() {
+        return null;
+    }
+
 
 }

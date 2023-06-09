@@ -5,12 +5,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.KVClass;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashSet;
 
 @Component
 @Primary
@@ -34,14 +36,16 @@ public class FilmDbStorage implements FilmStorage {
         LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
         Integer durationMin  = rs.getInt("duration_min");
         Integer ratingId  = rs.getInt("rating_id");
+        Integer likes  = rs.getInt("likes");
+        HashSet<Integer> genres = new HashSet<>();
 
-        return new Film(filmId, name, description, releaseDate, durationMin, ratingId);
+        return new Film(filmId, name, description, releaseDate, durationMin, ratingId, likes, genres);
     }
 
     @Override
     public Collection<Film> getAllFilms() {
 
-        String sqlQuery = "SELECT film_id, name, description, release_date, duration_min, rating_id FROM film";
+        String sqlQuery = "SELECT film_id, name, description, release_date, duration_min, rating_id, likes FROM film";
 
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
     }
@@ -53,33 +57,38 @@ public class FilmDbStorage implements FilmStorage {
         String description = film.getDescription();
         LocalDate releaseDate = film.getReleaseDate();
         Integer duration = film.getDuration();
-        Integer mpa = film.getMpa();
+        Integer ratingId = film.getMpa().getId();
+        Integer likes = film.getRate();
 
         // добавляем фильм в таблицу
-        String sqlQuery = "INSERT INTO film(name, description, release_date, duration_min, rating_id) " +
-                "VALUES (?, ?, ?, ?, ?)";
+        String sqlQuery = "INSERT INTO film(name, description, release_date, duration_min, rating_id, likes) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(sqlQuery,
                 name,
                 description,
                 releaseDate,
                 duration,
-                mpa);
+                ratingId,
+                likes);
+
+        Integer id = jdbcTemplate.queryForObject("SELECT film_id FROM film WHERE name = '" + name + "'",
+                Integer.class);
 
         // достаём созданный фильм из таблицы
         sqlQuery = "SELECT * FROM film WHERE " +
-                "name = ? " +
+                "film_id = ? " +
+                "AND name = ? " +
                 "AND description = ? " +
                 "AND release_date = ? " +
-                "AND duration_min = ? " +
-                "AND rating_id = ? ";
+                "AND duration_min = ?";
 
         return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm,
+                id,
                 name,
                 description,
                 releaseDate,
-                duration,
-                mpa);
+                duration);
     }
 
     @Override
@@ -89,7 +98,8 @@ public class FilmDbStorage implements FilmStorage {
         String description = film.getDescription();
         LocalDate releaseDate = film.getReleaseDate();
         Integer durationMin = film.getDuration();
-        Integer ratingId = film.getMpa();
+        Integer ratingId = film.getMpa().getId();
+        Integer likes = film.getRate();
 
         // обновляем фильм
         String sqlQuery = "UPDATE film SET " +
@@ -98,6 +108,7 @@ public class FilmDbStorage implements FilmStorage {
                 ", release_date = ? " +
                 ", duration_min = ? " +
                 ", rating_id = ? " +
+                ", likes = ? " +
                 "WHERE film_id = ?";
 
         jdbcTemplate.update(sqlQuery,
@@ -106,12 +117,13 @@ public class FilmDbStorage implements FilmStorage {
                 releaseDate,
                 durationMin,
                 ratingId,
-                film.getFilmId());
+                likes,
+                film.getId());
 
         // достаём обновлённый фильм из таблицы
         sqlQuery = "SELECT * FROM film WHERE film_id = ?";
 
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, film.getFilmId());
+        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, film.getId());
     }
 
     @Override
@@ -132,21 +144,92 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void addLike(Integer filmId, Integer userId) {
+    public void addLike(Integer filmId) {
 
-
-
+        Film filmToUpdate = getFilm(filmId);
+        Integer currentRate = filmToUpdate.getRate();
+        filmToUpdate.setRate(currentRate + 1);
+        updateFilm(filmToUpdate);
     }
 
     @Override
-    public void removeLike(Integer filmId, Integer userId) {
+    public void removeLike(Integer filmId) {
 
+        Film filmToUpdate = getFilm(filmId);
+        Integer currentRate = filmToUpdate.getRate();
+        filmToUpdate.setRate(currentRate - 1);
+        updateFilm(filmToUpdate);
     }
 
     @Override
-    public Integer getRating(Integer filmId) {
+    public Integer getLikes(Integer filmId) {
 
-        return jdbcTemplate.queryForObject("SELECT rating_id from film WHERE film_id = ?",
+        return jdbcTemplate.queryForObject("SELECT likes FROM film WHERE film_id = ?",
                 Integer.class, filmId);
+    }
+
+    /*
+        Методы для базы рейтингов
+     */
+    @Override
+    public boolean containsMpaId(Integer mpaId) {
+
+        SqlRowSet mpaRow = jdbcTemplate.queryForRowSet("select * from rating where rating_id = ?", mpaId);
+
+        return mpaRow.next();
+    }
+
+    private KVClass mapRowToMpaKV(ResultSet rs, int rowNum) throws SQLException {
+
+        Integer id = rs.getInt("rating_id");
+        String name = rs.getString("rating_name");
+
+        return new KVClass(id, name);
+    }
+    @Override
+    public String getMpa(Integer mpaId) {
+
+        return jdbcTemplate.queryForObject("SELECT rating_name FROM rating WHERE rating_id = ?",
+                String.class, mpaId);
+    }
+
+    @Override
+    public Collection<KVClass> getAllMpa() {
+
+        String sqlQuery = "SELECT rating_id, rating_name FROM rating";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToMpaKV);
+    }
+
+    /*
+        Методы для базы жанров
+     */
+    @Override
+    public boolean containsGenreId(Integer genreId) {
+
+        SqlRowSet genreRow = jdbcTemplate.queryForRowSet("select * from genre where genre_id = ?", genreId);
+
+        return genreRow.next();
+    }
+
+    private KVClass mapRowToGenreKV(ResultSet rs, int rowNum) throws SQLException {
+
+        Integer id = rs.getInt("genre_id");
+        String name = rs.getString("genre_name");
+
+        return new KVClass(id, name);
+    }
+
+    @Override
+    public String getGenre(Integer genreId) {
+
+        return jdbcTemplate.queryForObject("SELECT genre_name FROM genre WHERE genre_id = ?",
+                String.class, genreId);
+    }
+
+    @Override
+    public Collection<KVClass> getAllGenres() {
+
+        String sqlQuery = "SELECT genre_id, genre_name FROM genre";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToGenreKV);
     }
 }

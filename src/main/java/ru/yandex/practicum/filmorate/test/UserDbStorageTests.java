@@ -9,8 +9,11 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.MPAAList;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.dao.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -22,7 +25,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class UserDbStorageTests {
-    private final UserDbStorage userStorage;
+    private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
     private final JdbcTemplate jdbcTemplate;
     User user1;
     User user2;
@@ -32,9 +36,9 @@ class UserDbStorageTests {
     @BeforeEach
     void beforeEach() {
 
-        user1 = new User("email1@e.m", "login1", LocalDate.parse("2001-01-01", formatter));
-        user2 = new User("email2@e.m", "login2", LocalDate.parse("2002-02-02", formatter));
-        user3 = new User("email3@e.m", "login3", LocalDate.parse("2003-03-03", formatter));
+        user1 = new User("login1", "email1@e.m", LocalDate.parse("2001-01-01", formatter));
+        user2 = new User("login2", "email2@e.m", LocalDate.parse("2002-02-02", formatter));
+        user3 = new User("login3", "email3@e.m", LocalDate.parse("2003-03-03", formatter));
 
     }
 
@@ -43,6 +47,8 @@ class UserDbStorageTests {
 
         String sql;
         sql = "DELETE from user_friends";
+        jdbcTemplate.update(sql);
+        sql = "DELETE from film_likes";
         jdbcTemplate.update(sql);
         sql = "DELETE from users";
         jdbcTemplate.update(sql);
@@ -55,7 +61,7 @@ class UserDbStorageTests {
     public void testAddUser() {
 
         LocalDate birthday = LocalDate.parse("1985-03-25", formatter);
-        User userToAdd = new User("testUser@email.com", "testUserLogin", birthday);
+        User userToAdd = new User("testUserLogin", "testUser@email.com", birthday);
 
         User userToCheck = userStorage.addUser(userToAdd);
 
@@ -101,7 +107,7 @@ class UserDbStorageTests {
     public void testUpdateUser() {
 
         LocalDate birthday = LocalDate.parse("1985-03-25", formatter);
-        User userToAdd = new User("testUser@email.com", "testUserLogin", birthday);
+        User userToAdd = new User("testUserLogin", "testUser@email.com", birthday);
         userStorage.addUser(userToAdd);
 
         Integer id = jdbcTemplate.queryForObject("SELECT user_id from users WHERE login = 'testUserLogin'",
@@ -109,10 +115,13 @@ class UserDbStorageTests {
 
         System.out.println("id = " + id);
 
-        User updatedUser = new User(id, "updated@mail.com", "updLogin", "updName", birthday);
+        User updatedUser = new User(id, "updLogin", "updName", "updated@mail.com", birthday);
         userStorage.updateUser(updatedUser);
 
         User userToCheck = userStorage.getUser(id);
+
+        System.out.println("updatedUser: " + updatedUser);
+        System.out.println("userToCheck: " + userToCheck);
 
         assertEquals(userToCheck, updatedUser);
     }
@@ -279,6 +288,70 @@ class UserDbStorageTests {
 
         assertEquals(user2id, friendsListOfUser1.get(0));
         assertEquals(user3id, friendsListOfUser1.get(1));
+
+    }
+
+    @Test
+    public void testAddLike() {
+
+        Film film1 = new Film("title1", "descr1", LocalDate.parse("2001-01-01", formatter),
+                101, MPAAList.G);
+        filmStorage.addFilm(film1);
+
+        userStorage.addUser(user1);
+
+        Integer userId = jdbcTemplate.queryForObject("SELECT user_id from users WHERE login = 'login1'",
+                Integer.class);
+
+        Integer filmId = jdbcTemplate.queryForObject("SELECT film_id from film WHERE name = 'title1'",
+                Integer.class);
+
+        System.out.println(filmStorage.getLikes(filmId));
+        assertEquals(0, filmStorage.getLikes(filmId));
+
+        userStorage.addLikeToFilm(userId, filmId);
+
+        System.out.println(filmStorage.getLikes(filmId));
+        assertEquals(1, filmStorage.getLikes(filmId));
+
+    }
+
+    @Test
+    public void testRemoveLike() {
+
+        Film film1 = new Film("title1", "descr1", LocalDate.parse("2001-01-01", formatter),
+                101, MPAAList.G);
+        filmStorage.addFilm(film1);
+
+        userStorage.addUser(user1);
+        userStorage.addUser(user2);
+
+        Integer user1Id = jdbcTemplate.queryForObject("SELECT user_id from users WHERE login = 'login1'",
+                Integer.class);
+        Integer user2Id = jdbcTemplate.queryForObject("SELECT user_id from users WHERE login = 'login2'",
+                Integer.class);
+
+        Integer filmId = jdbcTemplate.queryForObject("SELECT film_id from film WHERE name = 'title1'",
+                Integer.class);
+
+        System.out.println(filmStorage.getLikes(filmId));
+        assertEquals(0, filmStorage.getLikes(filmId));
+
+        userStorage.addLikeToFilm(user1Id, filmId);
+        System.out.println(filmStorage.getLikes(filmId));
+        assertEquals(1, filmStorage.getLikes(filmId));
+
+        userStorage.addLikeToFilm(user2Id, filmId);
+        System.out.println(filmStorage.getLikes(filmId));
+        assertEquals(2, filmStorage.getLikes(filmId));
+
+        userStorage.removeLikeFromFilm(user2Id, filmId);
+        System.out.println(filmStorage.getLikes(filmId));
+        assertEquals(1, filmStorage.getLikes(filmId));
+
+        userStorage.removeLikeFromFilm(user1Id, filmId);
+        System.out.println(filmStorage.getLikes(filmId));
+        assertEquals(0, filmStorage.getLikes(filmId));
 
     }
 

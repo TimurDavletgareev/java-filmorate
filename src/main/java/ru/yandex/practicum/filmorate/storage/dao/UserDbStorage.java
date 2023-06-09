@@ -6,6 +6,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.FriendStatus;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.ResultSet;
@@ -18,9 +19,12 @@ import java.util.Collection;
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final FilmStorage filmStorage;
 
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
+    public UserDbStorage(JdbcTemplate jdbcTemplate, FilmStorage filmStorage) {
+
         this.jdbcTemplate = jdbcTemplate;
+        this.filmStorage = filmStorage;
     }
 
 
@@ -37,7 +41,7 @@ public class UserDbStorage implements UserStorage {
         // Получаем дату и конвертируем её из sql.Date в time.LocalDate
         LocalDate birthday = rs.getDate("birthday_date").toLocalDate();
 
-        return new User(userId, email, login, name, birthday);
+        return new User(userId, login, name, email, birthday);
     }
 
     @Override
@@ -53,29 +57,29 @@ public class UserDbStorage implements UserStorage {
 
         String email = user.getEmail();
         String login = user.getLogin();
-        if (user.getName() == null) {
+        if (user.getName() == null || user.getName().equals("")) {
             user.setName(user.getLogin());
         }
         String name = user.getName();
         LocalDate birthday = user.getBirthday();
 
         // добавляем пользователя в таблицу
-        String sqlQuery = "INSERT INTO users(email, login, name, birthday_date) VALUES (?, ?, ?, ?)";
+        String sqlQuery = "INSERT INTO users(login, name, email, birthday_date) VALUES (?, ?, ?, ?)";
 
         jdbcTemplate.update(sqlQuery,
-                email,
                 login,
                 name,
+                email,
                 birthday);
 
         // достаём созданного пользователя из таблицы
         sqlQuery = "SELECT * FROM users WHERE " +
-                "email = ? " +
-                "AND login = ? " +
+                "login = ? " +
                 "AND name = ? " +
+                "AND email = ? " +
                 "AND birthday_date = ?";
 
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, email, login, name, birthday);
+        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, login, name, email, birthday);
     }
 
     @Override
@@ -123,17 +127,20 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, userId);
     }
 
+    /*
+        Friends methods
+     */
     @Override
     public void addFriend(Integer userId, Integer friendId) {
 
         String sqlQueryForCheck = "SELECT * FROM user_friends WHERE user_id = ? AND friend_id = ?";
         String sqlQueryForStatus = "SELECT friend_status_id FROM user_friends WHERE user_id = ? AND friend_id = ?";
 
-        SqlRowSet friendsRows = jdbcTemplate.queryForRowSet(sqlQueryForCheck, userId, friendId);
+        SqlRowSet friendsRow = jdbcTemplate.queryForRowSet(sqlQueryForCheck, userId, friendId);
 
         Integer currentFriendStatus;
 
-        if (friendsRows.next()) {
+        if (friendsRow.next()) {
 
             currentFriendStatus = jdbcTemplate.queryForObject(sqlQueryForStatus, Integer.class, userId, friendId);
 
@@ -200,21 +207,25 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Collection<Integer> getFriends(Integer userId) {
 
-        String sql = "SELECT * FROM user_friends WHERE user_id = ?";
+        String sql = "SELECT * FROM user_friends WHERE user_id = ? AND friend_status_id = 0 OR friend_status_id = 2";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> getIdFromFriend(rs), userId);
     }
 
+    /*
+        Likes methods
+     */
     @Override
     public void addLikeToFilm(Integer userId, Integer filmId) {
 
         String sqlQueryForCheck = "SELECT * FROM film_likes WHERE film_id = ? AND user_id = ?";
 
-        SqlRowSet likeRow = jdbcTemplate.queryForRowSet(sqlQueryForCheck, userId, filmId);
+        SqlRowSet likeRow = jdbcTemplate.queryForRowSet(sqlQueryForCheck, filmId, userId);
 
         if (!likeRow.next()) {
             jdbcTemplate.update("INSERT INTO film_likes (film_id, user_id) " +
                     "VALUES (?, ?)", filmId, userId);
+            filmStorage.addLike(filmId);
         }
 
     }
@@ -224,12 +235,12 @@ public class UserDbStorage implements UserStorage {
 
         String sqlQueryForCheck = "SELECT * FROM film_likes WHERE film_id = ? AND user_id = ?";
 
-        SqlRowSet likeRow = jdbcTemplate.queryForRowSet(sqlQueryForCheck, userId, filmId);
+        SqlRowSet likeRow = jdbcTemplate.queryForRowSet(sqlQueryForCheck, filmId, userId);
 
         if (likeRow.next()) {
             jdbcTemplate.update("DELETE FROM film_likes " +
                     "WHERE film_id = ? AND user_id = ?", filmId, userId);
+            filmStorage.removeLike(filmId);
         }
-
     }
 }

@@ -20,10 +20,16 @@ UPDATE rating SET rating_name = 'R' WHERE rating_id = 4;
 UPDATE rating SET rating_name = 'NC17' WHERE rating_id = 5;
 
 
-INSERT INTO genre(genre_id) VALUES (0);
 INSERT INTO genre(genre_id) VALUES (1);
 INSERT INTO genre(genre_id) VALUES (2);
+INSERT INTO genre(genre_id) VALUES (3);
+INSERT INTO genre(genre_id) VALUES (4);
+INSERT INTO genre(genre_id) VALUES (5);
+INSERT INTO genre(genre_id) VALUES (6);
 
-UPDATE genre SET genre_name  = 'COMEDY' WHERE genre_id = 0;
-UPDATE genre SET genre_name  = 'DRAMA' WHERE genre_id = 1;
-UPDATE genre SET genre_name  = 'ACTION' WHERE genre_id = 2;
+UPDATE genre SET genre_name  = 'Комедия' WHERE genre_id = 1;
+UPDATE genre SET genre_name  = 'Драма' WHERE genre_id = 2;
+UPDATE genre SET genre_name  = 'Мультфильм' WHERE genre_id = 3;
+UPDATE genre SET genre_name  = 'Триллер' WHERE genre_id = 4;
+UPDATE genre SET genre_name  = 'Документальный' WHERE genre_id = 5;
+UPDATE genre SET genre_name  = 'Боевик' WHERE genre_id = 6;

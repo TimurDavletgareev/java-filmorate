@@ -9,12 +9,15 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.KVClass;
 import ru.yandex.practicum.filmorate.model.MPAAList;
 import ru.yandex.practicum.filmorate.storage.dao.FilmDbStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -143,13 +146,48 @@ class FilmDbStorageTests {
     }
 
     @Test
-    public void testGetRating() {
+    public void testGetLikes() {
 
-        filmStorage.addFilm(film1);
-        Integer id = jdbcTemplate.queryForObject("SELECT film_id from film WHERE name = 'title1'",
+        LocalDate releaseDate = LocalDate.parse("1985-03-25", formatter);
+        Integer rate = 6;
+        HashSet<Integer> genres = new HashSet<>();
+        Film filmToAdd = new Film("filmWithLikes", "descr", releaseDate, 120, MPAAList.G,
+                rate, genres);
+        filmStorage.addFilm(filmToAdd);
+
+        Integer id = jdbcTemplate.queryForObject("SELECT film_id FROM film WHERE name = 'filmWithLikes'",
                 Integer.class);
 
-        assertEquals(MPAAList.G, filmStorage.getRating(id));
+        System.out.println("id = " + id);
+        System.out.println(filmStorage.getFilm(id));
+
+        assertEquals(rate, filmStorage.getLikes(id));
     }
 
+    @Test
+    public void testGetMpa() {
+
+        assertTrue(filmStorage.containsMpaId(1));
+        assertFalse(filmStorage.containsMpaId(1000));
+        assertEquals("G", filmStorage.getMpa(1));
+        ArrayList<KVClass> list = new ArrayList<>(filmStorage.getAllMpa());
+        System.out.println(list);
+        assertEquals(list.get(0).getId(), 1);
+        assertEquals(list.get(0).getName(), "G");
+
+
+    }
+
+    @Test
+    public void testGetGenre() {
+
+        assertTrue(filmStorage.containsGenreId(1));
+        assertFalse(filmStorage.containsGenreId(1000));
+        assertEquals("Комедия", filmStorage.getGenre(1));
+        ArrayList<KVClass> list = new ArrayList<>(filmStorage.getAllGenres());
+        System.out.println(list);
+        assertEquals(list.get(0).getId(), 1);
+        assertEquals(list.get(0).getName(), "Комедия");
+
+    }
 }

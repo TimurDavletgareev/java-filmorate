@@ -1,41 +1,42 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Data;
-import org.springframework.data.relational.core.sql.In;
+import lombok.*;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.Set;
 
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 public class Film {
 
-    private Integer filmId;
+    private Integer id;
     @NotNull
     @NotBlank
-    private final String name;
+    private String name;
     @NotBlank
     @Size(max = 200)
-    private final String description;
+    private String description;
     @Past
-    private final LocalDate releaseDate;
+    private LocalDate releaseDate;
     @Positive
-    private final Integer duration;
-    private final Integer mpa;
+    private Integer duration;
+    private KVClass mpa = new KVClass();
     private Integer rate;
-    private Set<Integer> genres;
+    private HashSet<Integer> genres;
 
     // Конструктор для всего, кроме rate и genres
-    public Film(Integer filmId, String name, String description, LocalDate releaseDate, Integer duration,
+    public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration,
                 Integer mpa) {
 
-        this.filmId = filmId;
+        this.id = id;
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.mpa = mpa;
+        this.mpa.setId(mpa);
         rate = 0;
         genres = new HashSet<>();
     }
@@ -47,7 +48,7 @@ public class Film {
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.mpa = mpa;
+        this.mpa.setId(mpa);
         rate = 0;
         genres = new HashSet<>();
     }
@@ -61,24 +62,26 @@ public class Film {
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.mpa = mpa;
+        this.mpa.setId(mpa);
         this.rate = rate;
         this.genres = genres;
     }
 
     // конструктор для всего вообще
-    public Film(Integer filmId,
+    public Film(Integer id,
                 String name, String description, LocalDate releaseDate, Integer duration, Integer mpa,
                 Integer rate,
                 HashSet<Integer> genres) {
 
-        this.filmId = filmId;
+        this.id = id;
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.mpa = mpa;
+        this.mpa.setId(mpa);
         this.rate = rate;
         this.genres = genres;
     }
+
+    public Film() {}
 }

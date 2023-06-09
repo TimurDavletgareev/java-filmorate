@@ -2,13 +2,10 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.storage.dao.UserDbStorage;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
 
-    // @Qualifier("UserDbStorage") // указали, что будет использована имплементация UserStorage UserDbStorage
+    // Будет использована имплементация UserStorage UserDbStorage, тк она помечена @Primary
     private final UserStorage userStorage; // переменная хранилища пользователей
 
     /*
@@ -65,7 +62,6 @@ public class UserService {
         isValidId(id2);
 
         userStorage.addFriend(id1, id2);
-        userStorage.addFriend(id2, id1);
     }
 
     public void deleteFromFriends(Integer id1, Integer id2) {
@@ -74,7 +70,6 @@ public class UserService {
         isValidId(id2);
 
         userStorage.removeFriend(id1, id2);
-        userStorage.removeFriend(id2, id1);
     }
 
     /*
@@ -106,11 +101,11 @@ public class UserService {
     /*
         Методы добавления и удаления лайка (вызываются из FilmService, там же проверяются на соответствия базам)
      */
-    protected void addLikeFromUser(Integer userId, Integer filmId) {
+    protected void addLikeToFilm(Integer userId, Integer filmId) {
         userStorage.addLikeToFilm(userId, filmId);
     }
 
-    protected void removeLikeFromUser(Integer userId, Integer filmId) {
+    protected void removeLikeFromFilm(Integer userId, Integer filmId) {
         userStorage.removeLikeFromFilm(userId, filmId);
     }
 }

@@ -10,8 +10,8 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.inMemory.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.inMemory.InMemoryUserStorage;
 
 import java.io.IOException;
 import java.net.URI;

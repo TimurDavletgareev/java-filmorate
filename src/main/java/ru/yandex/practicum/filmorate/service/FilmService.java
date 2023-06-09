@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmValidationException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.KVClass;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
@@ -29,7 +30,7 @@ public class FilmService {
     /*
         Метод проверки наличия id фильма в базе
     */
-    public void isValidId(int id) {
+    public void isValidFilmId(int id) {
 
         if (!filmStorage.containsKey(id)) {
 
@@ -56,7 +57,7 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
 
-        isValidId(film.getFilmId());
+        isValidFilmId(film.getId());
 
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new FilmValidationException("Указана дата до 28.12.1895");
@@ -67,7 +68,7 @@ public class FilmService {
 
     public Film getFilmById(Integer id) {
 
-        isValidId(id);
+        isValidFilmId(id);
         return filmStorage.getFilm(id);
     }
 
@@ -76,20 +77,18 @@ public class FilmService {
     */
     public void addLike(Integer filmId, Integer userId) {
 
-        isValidId(filmId);
+        isValidFilmId(filmId);
         userService.isValidId(userId);
 
-        filmStorage.addLike(filmId, userId);
-        userService.addLikeFromUser(userId, filmId);
+        userService.addLikeToFilm(userId, filmId);
     }
 
     public void deleteLike(Integer filmId, Integer userId) {
 
-        isValidId(filmId);
+        isValidFilmId(filmId);
         userService.isValidId(userId);
 
-        filmStorage.removeLike(filmId, userId);
-        userService.removeLikeFromUser(userId, filmId);
+        userService.removeLikeFromFilm(userId, filmId);
     }
 
     /*
@@ -98,10 +97,51 @@ public class FilmService {
     public Collection<Film> getPopular(int size) {
 
         return getAllFilms().stream()
-                .sorted((f0, f1) -> -1 * (filmStorage.getRating(f0.getFilmId())
-                        - filmStorage.getRating(f1.getFilmId()))) // -1 т.к. сортируем по убыванию
+                .sorted((f0, f1) -> -1 * (filmStorage.getLikes(f0.getId())
+                        - filmStorage.getLikes(f1.getId()))) // -1 т.к. сортируем по убыванию
                 .limit(size)
                 .collect(Collectors.toList());
+    }
+
+
+    /*
+            Методы работы с таблицей genre
+        */
+    public void isValidMpaId(int id) {
+
+        if (!filmStorage.containsMpaId(id)) {
+
+            throw new NotFoundException("MPA с указанным id нет в базе");
+        }
+    }
+    public String getMpa(Integer mpaId) {
+
+        isValidMpaId(mpaId);
+        return filmStorage.getMpa(mpaId);
+    }
+    public Collection<KVClass> getAllMpa() {
+
+        return filmStorage.getAllMpa();
+    }
+
+    /*
+        Методы работы с таблицей genre
+    */
+    public void isValidGenreId(int id) {
+
+        if (!filmStorage.containsGenreId(id)) {
+
+            throw new NotFoundException("Жанра с указанным id нет в базе");
+        }
+    }
+    public String getGenre(Integer genreId) {
+
+        isValidGenreId(genreId);
+        return filmStorage.getGenre(genreId);
+    }
+    public Collection<KVClass> getAllGenres() {
+
+        return filmStorage.getAllGenres();
     }
 
 
