@@ -24,11 +24,15 @@ public interface FilmStorage {
     Integer getLikes(Integer filmId);
 
     boolean containsMpaId(Integer mpaId);
+
     KVClass getMpaByMpaId(Integer mpaId);
+
     Collection<KVClass> getAllMpa();
 
     boolean containsGenreId(Integer genreId);
-    String getGenre(Integer genreId);
+
+    KVClass getGenre(Integer genreId);
+
     Collection<KVClass> getAllGenres();
 
 

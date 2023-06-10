@@ -1,8 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 import java.time.LocalDate;
 
 @Setter
@@ -27,6 +33,7 @@ public class User {
         this.login = login;
         this.birthday = birthday;
     }
+
     public User(int id, String login, String name, String email, LocalDate birthday) {
         this.id = id;
         this.email = email;
@@ -34,6 +41,7 @@ public class User {
         this.name = name;
         this.birthday = birthday;
     }
+
     public User(String login, String name, String email, LocalDate birthday) {
         this.email = email;
         this.login = login;

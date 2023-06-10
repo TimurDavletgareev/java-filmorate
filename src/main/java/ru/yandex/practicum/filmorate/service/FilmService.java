@@ -137,7 +137,7 @@ public class FilmService {
         }
     }
 
-    public String getGenre(Integer genreId) {
+    public KVClass getGenre(Integer genreId) {
 
         isValidGenreId(genreId);
         return filmStorage.getGenre(genreId);

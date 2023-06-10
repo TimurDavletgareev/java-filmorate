@@ -5,7 +5,10 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.KVClass;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -83,7 +86,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public String getGenre(Integer genreId) {
+    public KVClass getGenre(Integer genreId) {
         return null;
     }
 
