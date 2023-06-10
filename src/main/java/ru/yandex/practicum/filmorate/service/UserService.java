@@ -75,10 +75,10 @@ public class UserService {
     /*
         Метод получения списка друзей дользователя
      */
-    public Collection<Integer> getFriendsList(Integer user_id) {
+    public Collection<Integer> getFriendsList(Integer userId) {
 
-        isValidId(user_id);
-        return userStorage.getFriends(user_id);
+        isValidId(userId);
+        return userStorage.getFriends(userId);
     }
 
     /*
