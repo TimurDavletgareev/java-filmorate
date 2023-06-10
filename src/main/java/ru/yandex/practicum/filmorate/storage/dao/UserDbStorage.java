@@ -98,12 +98,12 @@ public class UserDbStorage implements UserStorage {
                 "email = ?, login = ?, name = ? , birthday_date = ?" +
                 "WHERE user_id = ?";
 
-        jdbcTemplate.update(sqlQuery
-                , email
-                , login
-                , name
-                , birthday
-                , user.getId());
+        jdbcTemplate.update(sqlQuery,
+                email,
+                login,
+                name,
+                birthday,
+                user.getId());
 
         // достаём обновлённого пользователя из таблицы
         sqlQuery = "SELECT * FROM users WHERE user_id = ?";
