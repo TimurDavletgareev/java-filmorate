@@ -11,8 +11,8 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 @Component
 @Primary
@@ -46,8 +46,8 @@ public class FilmDbStorage implements FilmStorage {
                 "JOIN genre AS g ON fg.genre_id = g.genre_id " +
                 "WHERE fg.film_id = " + filmId + " " +
                 "ORDER BY fg.genre_id ASC";
-        ArrayList<KVClass> genres =
-                new ArrayList<>(jdbcTemplate.query(sqlQuery, this::mapRowToGenreKV));
+        HashSet<KVClass> genres =
+                new HashSet<>(jdbcTemplate.query(sqlQuery, this::mapRowToGenreKV));
 
         return new Film(filmId, name, description, releaseDate, durationMin, getMpaByMpaId(ratingId), likes, genres);
     }
@@ -61,7 +61,7 @@ public class FilmDbStorage implements FilmStorage {
         Integer duration = film.getDuration();
         Integer ratingId = film.getMpa().getId();
         Integer likes = film.getRate();
-        ArrayList<KVClass> genres = film.getGenres();
+        HashSet<KVClass> genres = film.getGenres();
 
         // добавляем фильм в таблицу films
         String sqlQuery = "INSERT INTO film(name, description, release_date, duration_min, rating_id, likes)" +
@@ -112,7 +112,7 @@ public class FilmDbStorage implements FilmStorage {
         Integer durationMin = film.getDuration();
         Integer ratingId = film.getMpa().getId();
         Integer likes = film.getRate();
-        ArrayList<KVClass> genres = film.getGenres();
+        HashSet<KVClass> genres = film.getGenres();
 
         // обновляем фильм в таблице film
         String sqlQuery = "UPDATE film SET " +

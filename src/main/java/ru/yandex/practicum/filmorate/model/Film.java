@@ -7,7 +7,7 @@ import lombok.ToString;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.HashSet;
 
 @Getter
 @Setter
@@ -28,12 +28,12 @@ public class Film {
     private Integer duration;
     private KVClass mpa;
     private Integer rate;
-    private ArrayList<KVClass> genres = new ArrayList<>();
+    private HashSet<KVClass> genres = new HashSet<>();
 
 
     // конструктор для всего вообще
     public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration,
-                KVClass mpa, Integer rate, ArrayList<KVClass> genres) {
+                KVClass mpa, Integer rate, HashSet<KVClass> genres) {
 
         this.id = id;
         this.name = name;
