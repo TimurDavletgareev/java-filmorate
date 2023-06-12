@@ -63,7 +63,7 @@ class FilmDbStorageTests {
     }
 
     @Test
-    void TestAddFilm() {
+    void testAddFilm() {
 
         LocalDate releaseDate = LocalDate.parse("1985-03-25", formatter);
         Film filmToAdd = new Film(null, "testTitle", "testDescr", releaseDate, 120,
