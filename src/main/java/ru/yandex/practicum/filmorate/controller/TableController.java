@@ -22,10 +22,10 @@ public class TableController {
     private final FilmService filmService; // lombok @RequiredArgsConstructor создаёт конструктор
 
     /*
-    Эндпоинт получения MPA по id
- */
+        Эндпоинт получения MPA по id
+    */
     @GetMapping("/mpa/{id}")
-    public KVClass getMpaByFilmId(@PathVariable Integer id) {
+    public KVClass getMpaByMpaId(@PathVariable Integer id) {
 
         return filmService.getMpaByMpaId(id);
     }

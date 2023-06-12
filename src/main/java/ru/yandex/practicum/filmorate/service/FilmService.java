@@ -105,19 +105,17 @@ public class FilmService {
 
 
     /*
-        Методы работы с таблицей genre
+        Методы работы с таблицей rating
     */
-    public void isValidMpaId(int mpaId) {
-
-        if (!filmStorage.containsMpaId(mpaId)) {
-
-            throw new NotFoundException("MPA с указанным mpaId нет в базе");
-        }
-    }
-
     public KVClass getMpaByMpaId(Integer mpaId) {
 
-        isValidMpaId(mpaId);
+        // Проверяем наличие в базе для правильной обработки ошибки (выкидываем код 404)
+        // Если не обработать, то выкинем код 500
+        if (!filmStorage.containsMpaId(mpaId)) {
+
+            throw new NotFoundException("Фильма с указанным id нет в базе");
+        }
+
         return filmStorage.getMpaByMpaId(mpaId);
     }
 
@@ -129,17 +127,15 @@ public class FilmService {
     /*
         Методы работы с таблицей genre
     */
-    public void isValidGenreId(int id) {
-
-        if (!filmStorage.containsGenreId(id)) {
-
-            throw new NotFoundException("Жанра с указанным id нет в базе");
-        }
-    }
-
     public KVClass getGenre(Integer genreId) {
 
-        isValidGenreId(genreId);
+        // Проверяем наличие в базе для правильной обработки ошибки (выкидываем код 404)
+        // Если не обработать, то выкинем код 500
+        if (!filmStorage.containsGenreId(genreId)) {
+
+            throw new NotFoundException("Фильма с указанным id нет в базе");
+        }
+
         return filmStorage.getGenre(genreId);
     }
 
@@ -147,6 +143,4 @@ public class FilmService {
 
         return filmStorage.getAllGenres();
     }
-
-
 }

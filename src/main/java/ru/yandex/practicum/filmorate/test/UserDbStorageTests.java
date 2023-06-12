@@ -1,4 +1,3 @@
-/*
 package ru.yandex.practicum.filmorate.test;
 
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.MPAAList;
+import ru.yandex.practicum.filmorate.model.KVClass;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -19,6 +18,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -47,14 +47,22 @@ class UserDbStorageTests {
     void afterEach() {
 
         String sql;
+
         sql = "DELETE from user_friends";
         jdbcTemplate.update(sql);
+
+        sql = "DELETE from film_genre";
+        jdbcTemplate.update(sql);
+
         sql = "DELETE from film_likes";
         jdbcTemplate.update(sql);
+
         sql = "DELETE from users";
         jdbcTemplate.update(sql);
+
         sql = "DELETE from film";
         jdbcTemplate.update(sql);
+
 
     }
 
@@ -77,8 +85,6 @@ class UserDbStorageTests {
     public void testGetUserById() {
 
         userStorage.addUser(user1);
-
-        Integer size = jdbcTemplate.queryForObject("SELECT COUNT (*) from users ", Integer.class);
 
         Integer id = jdbcTemplate.queryForObject("SELECT user_id from users WHERE login = 'login1'",
                 Integer.class);
@@ -262,7 +268,6 @@ class UserDbStorageTests {
         }
 
 
-
     }
 
     @Test
@@ -293,10 +298,42 @@ class UserDbStorageTests {
     }
 
     @Test
+    public void testGetCommonFriends() {
+
+        userStorage.addUser(user1);
+        userStorage.addUser(user2);
+        userStorage.addUser(user3);
+
+        Integer user1id = jdbcTemplate.queryForObject("SELECT user_id from users WHERE login = 'login1'",
+                Integer.class);
+        Integer user2id = jdbcTemplate.queryForObject("SELECT user_id from users WHERE login = 'login2'",
+                Integer.class);
+        Integer user3id = jdbcTemplate.queryForObject("SELECT user_id from users WHERE login = 'login3'",
+                Integer.class);
+
+        userStorage.addFriend(user1id, user2id);
+        userStorage.addFriend(user1id, user3id);
+        userStorage.addFriend(user2id, user3id);
+
+
+        ArrayList<Integer> friendsList = new ArrayList<>(userStorage.getCommonFriends(user1id, user2id));
+
+        assertEquals(1, friendsList.size());
+        System.out.println("size of user friends list: " + friendsList.size());
+
+        assertEquals(user3id, friendsList.get(0));
+
+    }
+
+    @Test
     public void testAddLike() {
 
-        Film film1 = new Film("title1", "descr1", LocalDate.parse("2001-01-01", formatter),
-                101, MPAAList.G);
+        KVClass testMpa = new KVClass(1, "G");
+        HashSet<KVClass> testGenre = new HashSet<>();
+        testGenre.add(testMpa);
+
+        Film film1 = new Film(null, "title1", "descr1", LocalDate.parse("2001-01-01", formatter),
+                101, testMpa, 0, testGenre);
         filmStorage.addFilm(film1);
 
         userStorage.addUser(user1);
@@ -320,8 +357,12 @@ class UserDbStorageTests {
     @Test
     public void testRemoveLike() {
 
-        Film film1 = new Film("title1", "descr1", LocalDate.parse("2001-01-01", formatter),
-                101, MPAAList.G);
+        KVClass testMpa = new KVClass(1, "G");
+        HashSet<KVClass> testGenre = new HashSet<>();
+        testGenre.add(testMpa);
+
+        Film film1 = new Film(null, "title1", "descr1", LocalDate.parse("2001-01-01", formatter),
+                101, testMpa, 0, testGenre);
         filmStorage.addFilm(film1);
 
         userStorage.addUser(user1);
@@ -356,4 +397,4 @@ class UserDbStorageTests {
 
     }
 
-}*/
+}

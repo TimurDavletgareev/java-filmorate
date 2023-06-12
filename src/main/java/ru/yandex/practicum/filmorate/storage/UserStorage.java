@@ -22,6 +22,8 @@ public interface UserStorage {
 
     Collection<Integer> getFriends(Integer userId);
 
+    Collection<Integer> getCommonFriends(Integer user1Id, Integer user2Id);
+
     void addLikeToFilm(Integer userId, Integer filmId);
 
     void removeLikeFromFilm(Integer userId, Integer filmId);

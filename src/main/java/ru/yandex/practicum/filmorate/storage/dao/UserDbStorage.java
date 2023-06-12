@@ -212,6 +212,23 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(sql, (rs, rowNum) -> getIdFromFriend(rs), userId);
     }
 
+    @Override
+    public Collection<Integer> getCommonFriends(Integer user1Id, Integer user2Id) {
+
+        String sql = "SELECT * " +
+                "FROM user_friends AS u1friends " +
+                "JOIN (" +
+                "SELECT * " +
+                "FROM user_friends " +
+                "WHERE user_id = ? AND friend_status_id = 0 OR friend_status_id = 2" +
+                ") AS u2friends ON u1friends.friend_id = u2friends.friend_id " +
+                "WHERE u1friends.user_id = ? AND u1friends.friend_status_id = 0 OR u1friends.friend_status_id = 2";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> getIdFromFriend(rs), user1Id, user2Id);
+
+
+    }
+
     /*
         Likes methods
      */

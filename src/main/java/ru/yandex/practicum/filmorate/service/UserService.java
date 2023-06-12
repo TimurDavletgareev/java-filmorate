@@ -56,20 +56,20 @@ public class UserService {
     /*
         Методы добавления и удаления друзей
      */
-    public void addToFriends(Integer id1, Integer id2) {
+    public void addToFriends(Integer userId, Integer friendId) {
 
-        isValidId(id1);
-        isValidId(id2);
+        isValidId(userId);
+        isValidId(friendId);
 
-        userStorage.addFriend(id1, id2);
+        userStorage.addFriend(userId, friendId);
     }
 
-    public void deleteFromFriends(Integer id1, Integer id2) {
+    public void deleteFromFriends(Integer userId, Integer friendId) {
 
-        isValidId(id1);
-        isValidId(id2);
+        isValidId(userId);
+        isValidId(friendId);
 
-        userStorage.removeFriend(id1, id2);
+        userStorage.removeFriend(userId, friendId);
     }
 
     /*
@@ -84,18 +84,12 @@ public class UserService {
     /*
         Метод получения списка общих друзей двух пользователей
      */
-    public Collection<Integer> getCommonFriends(Integer id1, Integer id2) {
+    public Collection<Integer> getCommonFriends(Integer user1Id, Integer user2Id) {
 
-        isValidId(id1);
-        isValidId(id2);
+        isValidId(user1Id);
+        isValidId(user2Id);
 
-        List<Integer> result = new ArrayList<>();
-        for (Integer id : userStorage.getFriends(id1)) {
-            if (userStorage.getFriends(id2).contains(id)) {
-                result.add(id);
-            }
-        }
-        return result;
+        return userStorage.getCommonFriends(user1Id, user2Id);
     }
 
     /*

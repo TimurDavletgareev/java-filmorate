@@ -1,4 +1,3 @@
-/*
 package ru.yandex.practicum.filmorate.test;
 
 import lombok.RequiredArgsConstructor;
@@ -10,12 +9,13 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.MPAAList;
+import ru.yandex.practicum.filmorate.model.KVClass;
 import ru.yandex.practicum.filmorate.storage.dao.FilmDbStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,12 +33,16 @@ class FilmDbStorageTests {
     @BeforeEach
     void beforeEach() {
 
-        film1 = new Film("title1", "descr1", LocalDate.parse("2001-01-01", formatter),
-                101, MPAAList.G);
-        film2 = new Film("title2", "descr2", LocalDate.parse("2002-02-02", formatter),
-                102, MPAAList.PG);
-        film3 = new Film("title3", "descr3", LocalDate.parse("2003-03-03", formatter),
-                103, MPAAList.PG13);
+        KVClass testMpa = new KVClass(1, "G");
+        HashSet<KVClass> testGenre = new HashSet<>();
+        testGenre.add(testMpa);
+
+        film1 = new Film(null, "title1", "descr1", LocalDate.parse("2001-01-01", formatter),
+                101, testMpa, 1, testGenre);
+        film2 = new Film(null, "title2", "descr2", LocalDate.parse("2002-02-02", formatter),
+                102, testMpa, 2, testGenre);
+        film3 = new Film(null, "title3", "descr3", LocalDate.parse("2003-03-03", formatter),
+                103, testMpa, 3, testGenre);
     }
 
     @AfterEach
@@ -62,7 +66,8 @@ class FilmDbStorageTests {
     void TestAddFilm() {
 
         LocalDate releaseDate = LocalDate.parse("1985-03-25", formatter);
-        Film filmToAdd = new Film("testTitle", "testDescr", releaseDate, 120, MPAAList.G);
+        Film filmToAdd = new Film(null, "testTitle", "testDescr", releaseDate, 120,
+                new KVClass(1, "test"), null, null);
 
         Film filmToCheck = filmStorage.addFilm(filmToAdd);
 
@@ -112,7 +117,8 @@ class FilmDbStorageTests {
     public void testUpdateFilm() {
 
         LocalDate releaseDate = LocalDate.parse("1985-03-25", formatter);
-        Film filmToAdd = new Film("testTitle", "testDescr", releaseDate, 120, MPAAList.R);
+        Film filmToAdd = new Film(null, "testTitle", "testDescr", releaseDate, 120,
+                new KVClass(1, "test"), null, null);
 
         filmStorage.addFilm(filmToAdd);
 
@@ -124,7 +130,7 @@ class FilmDbStorageTests {
         Integer duration = 240;
 
         Film updatedFilm = new Film(id, "updatedTitle", "updDescr", releaseDate, duration,
-                MPAAList.NC17);
+                new KVClass(1, "G"), 0, null);
 
         filmStorage.updateFilm(updatedFilm);
 
@@ -149,14 +155,12 @@ class FilmDbStorageTests {
 
     @Test
     public void testGetLikes() {
-*/
-/*
+
         LocalDate releaseDate = LocalDate.parse("1985-03-25", formatter);
         Integer rate = 6;
-        // ArrayList<Integer> genres = new ArrayList<>();
-        Integer genres;
-        Film filmToAdd = new Film("filmWithLikes", "descr", releaseDate, 120, MPAAList.G,
-                rate);
+
+        Film filmToAdd = new Film(null, "filmWithLikes", "descr", releaseDate, 120,
+                new KVClass(1, "test"), 6, null);
         filmStorage.addFilm(filmToAdd);
 
         Integer id = jdbcTemplate.queryForObject("SELECT film_id FROM film WHERE name = 'filmWithLikes'",
@@ -167,27 +171,18 @@ class FilmDbStorageTests {
 
         assertEquals(rate, filmStorage.getLikes(id));
 
- *//*
-
     }
 
     @Test
     public void testGetMpa() {
 
-        filmStorage.addFilm(film1);
-
-        Integer id = jdbcTemplate.queryForObject("SELECT film_id FROM film WHERE name = 'title1'",
-                Integer.class);
-
         assertTrue(filmStorage.containsMpaId(1));
         assertFalse(filmStorage.containsMpaId(1000));
-        assertEquals("G", filmStorage.getMpaByMpaId(id).getName());
+        assertEquals("G", filmStorage.getMpaByMpaId(1).getName());
         ArrayList<KVClass> list = new ArrayList<>(filmStorage.getAllMpa());
         System.out.println(list);
         assertEquals(list.get(0).getId(), 1);
         assertEquals(list.get(0).getName(), "G");
-
-
     }
 
     @Test
@@ -195,11 +190,11 @@ class FilmDbStorageTests {
 
         assertTrue(filmStorage.containsGenreId(1));
         assertFalse(filmStorage.containsGenreId(1000));
-        assertEquals("Комедия", filmStorage.getGenre(1));
+        assertEquals("Комедия", filmStorage.getGenre(1).getName());
         ArrayList<KVClass> list = new ArrayList<>(filmStorage.getAllGenres());
         System.out.println(list);
         assertEquals(list.get(0).getId(), 1);
         assertEquals(list.get(0).getName(), "Комедия");
 
     }
-}*/
+}
