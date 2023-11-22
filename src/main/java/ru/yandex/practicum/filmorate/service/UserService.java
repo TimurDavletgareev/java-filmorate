@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -17,10 +16,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
 
+    // Будет использована имплементация UserStorage UserDbStorage, тк она помечена @Primary
     private final UserStorage userStorage; // переменная хранилища пользователей
 
     /*
-        Метод проверки наличий id пользователя в базе
+        Метод проверки наличия id пользователя в базе
     */
     public void isValidId(int id) {
 
@@ -56,61 +56,50 @@ public class UserService {
     /*
         Методы добавления и удаления друзей
      */
-    public void addToFriends(Integer id1, Integer id2) {
+    public void addToFriends(Integer userId, Integer friendId) {
 
-        isValidId(id1);
-        isValidId(id2);
+        isValidId(userId);
+        isValidId(friendId);
 
-        userStorage.getUser(id1).addFriend(id2);
-        userStorage.getUser(id2).addFriend(id1);
+        userStorage.addFriend(userId, friendId);
     }
 
-    public void deleteFromFriends(Integer id1, Integer id2) {
+    public void deleteFromFriends(Integer userId, Integer friendId) {
 
-        isValidId(id1);
-        isValidId(id2);
+        isValidId(userId);
+        isValidId(friendId);
 
-        userStorage.getUser(id1).removeFriend(id2);
-        userStorage.getUser(id2).removeFriend(id1);
+        userStorage.removeFriend(userId, friendId);
     }
 
     /*
         Метод получения списка друзей дользователя
      */
-    public Collection<Integer> getFriendsList(Integer id) {
+    public Collection<Integer> getFriendsList(Integer userId) {
 
-        isValidId(id);
-        return userStorage.getUser(id).getFriends();
+        isValidId(userId);
+        return userStorage.getFriends(userId);
     }
 
     /*
         Метод получения списка общих друзей двух пользователей
      */
-    public Collection<Integer> getCommonFriends(Integer id1, Integer id2) {
+    public Collection<Integer> getCommonFriends(Integer user1Id, Integer user2Id) {
 
-        isValidId(id1);
-        isValidId(id2);
+        isValidId(user1Id);
+        isValidId(user2Id);
 
-        User user1 = userStorage.getUser(id1);
-        User user2 = userStorage.getUser(id2);
-
-        List<Integer> result = new ArrayList<>();
-        for (Integer id : user1.getFriends()) {
-            if (user2.getFriends().contains(id)) {
-                result.add(id);
-            }
-        }
-        return result;
+        return userStorage.getCommonFriends(user1Id, user2Id);
     }
 
     /*
         Методы добавления и удаления лайка (вызываются из FilmService, там же проверяются на соответствия базам)
      */
-    protected void addLikeFromUser(Integer userId, Film film) {
-        userStorage.getUser(userId).addLikeToFilm(film);
+    protected void addLikeToFilm(Integer userId, Integer filmId) {
+        userStorage.addLikeToFilm(userId, filmId);
     }
 
-    protected void removeLikeFromUser(Integer userId, Film film) {
-        userStorage.getUser(userId).removeLikeFromFilm(film);
+    protected void removeLikeFromFilm(Integer userId, Integer filmId) {
+        userStorage.removeLikeFromFilm(userId, filmId);
     }
 }

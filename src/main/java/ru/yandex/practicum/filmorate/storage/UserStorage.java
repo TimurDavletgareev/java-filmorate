@@ -12,8 +12,20 @@ public interface UserStorage {
 
     User updateUser(User user);
 
-    boolean containsKey(Integer id);
+    boolean containsKey(Integer userId);
 
-    User getUser(Integer id);
+    User getUser(Integer userId);
+
+    void addFriend(Integer userId, Integer friendId);
+
+    void removeFriend(Integer userId, Integer friendId);
+
+    Collection<Integer> getFriends(Integer userId);
+
+    Collection<Integer> getCommonFriends(Integer user1Id, Integer user2Id);
+
+    void addLikeToFilm(Integer userId, Integer filmId);
+
+    void removeLikeFromFilm(Integer userId, Integer filmId);
 
 }

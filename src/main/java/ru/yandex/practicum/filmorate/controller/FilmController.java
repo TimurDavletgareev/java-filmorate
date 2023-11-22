@@ -34,6 +34,7 @@ public class FilmController {
      */
     @GetMapping
     public List<Film> getAllFilms() {
+
         return new ArrayList<>(filmService.getAllFilms());
     }
 
@@ -78,5 +79,6 @@ public class FilmController {
 
         return new ArrayList<>(filmService.getPopular(count));
     }
+
 
 }
